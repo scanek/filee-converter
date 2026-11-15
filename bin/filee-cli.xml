@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>filee-cli</name>
+    </assembly>
+    <members>
+        <member name="M:Filee.Cli.Cli.RunAsync(System.Collections.Generic.IReadOnlyList{System.String},System.IO.TextWriter,System.IO.TextWriter,System.Threading.CancellationToken,System.Func{Filee.Cli.CliHost})">
+            <param name="createHost">Engines and settings (tests pass a host with a temporary settings folder).</param>
+        </member>
+        <member name="M:Filee.Cli.Cli.RunJobAsync(System.Collections.Generic.IReadOnlyList{System.String},Filee.Core.Presets.Preset,Filee.Cli.CliHost,System.IO.TextWriter,Filee.Cli.Cli.JobEvents,System.Threading.CancellationToken)">
+            <summary>
+            Runs one job and prints each file's result as soon as it is final: a line to <paramref name="output"/>, a "file"
+            event to <paramref name="events"/> (each when given), with "progress" events while files run.
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.Cli.Shorten(System.String)">
+            <summary>Relative to the current folder when the file is inside it, else the full path.</summary>
+        </member>
+        <member name="M:Filee.Cli.Cli.WriteFileFields(System.Text.Json.Utf8JsonWriter,Filee.Core.Conversion.FileResult,Filee.Core.Localization.ILocalizer,Filee.Cli.Cli.OptionalEngineRoutes)">
+            <summary>A file's fields in the final document of 'convert --json', also those of its "file" event.</summary>
+        </member>
+        <member name="M:Filee.Cli.Cli.ResolvePreset(Filee.Cli.CliOptions,Filee.Cli.CliHost,System.IO.TextWriter)">
+            <summary>The preset from --to or --preset, with --quality and --overwrite/--skip applied (a copy).</summary>
+        </member>
+        <member name="M:Filee.Cli.Cli.FindFormat(System.String)">
+            <summary>A format by id ("jpg") or by extension ("jpeg", ".jpg").</summary>
+        </member>
+        <member name="M:Filee.Cli.Cli.ExpandInputs(System.Collections.Generic.IEnumerable{System.String},System.Boolean,System.Collections.Generic.List{System.String},System.Boolean)">
+            <summary>
+            Files from the arguments: files as given, wildcards ("*.heic", which cmd.exe and PowerShell pass on unexpanded)
+            and folders (their files in formats Filee knows, programs left out as in watch folders: the installers in a folder
+            aren't pictures to convert; with --recursive also in sub folders).
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.Cli.WriteFormatFields(System.Text.Json.Utf8JsonWriter,Filee.Core.Formats.FileFormat)">
+            <summary>The fields of one format in the JSON of 'formats': the same names for the list and for one format.</summary>
+        </member>
+        <member name="T:Filee.Cli.Cli.JobEvents">
+            <summary>
+            The events of 'convert --json' (to stderr) and 'watch --json' (to stdout), one JSON object per line. A "file" event
+            has the fields of the file's entry in the final document. "progress" (convert only) comes when a running file's
+            fraction moves past 0 or changes, at most about every 150 ms per file, like the progress of 'engines install'.
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.Cli.JobEvents.#ctor(System.IO.TextWriter,Filee.Core.Localization.ILocalizer,Filee.Core.Conversion.ConverterCatalog,System.Boolean)">
+            <summary>
+            The events of 'convert --json' (to stderr) and 'watch --json' (to stdout), one JSON object per line. A "file" event
+            has the fields of the file's entry in the final document. "progress" (convert only) comes when a running file's
+            fraction moves past 0 or changes, at most about every 150 ms per file, like the progress of 'engines install'.
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.CliHost.#ctor(Filee.Core.Settings.UserDataStore,Filee.Core.Conversion.ConverterCatalog,Filee.Core.Conversion.JobQueue,Filee.Engines.Infrastructure.EngineInstaller)">
+            <param name="engines">Installer of the optional engines; the app's (per-user engines folder) when null.</param>
+        </member>
+        <member name="P:Filee.Cli.CliHost.Engines">
+            <summary>
+            The installer Settings → Engines uses, on EngineEnvironment.DownloadRoot (the engines folder in FILEE_DATA_DIR
+            when that is set). Created when 'filee engines' first needs it.
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.CliHost.Create(System.String,Filee.Engines.Infrastructure.EngineInstaller)">
+            <param name="dataDirectory">Settings folder; the app's (%APPDATA%\Filee) when null.</param>
+            <param name="engines">Installer of the optional engines (tests pass one with their own folder and downloads).</param>
+        </member>
+        <member name="M:Filee.Cli.CliHost.Trash">
+            <summary>The system's Recycle Bin / Trash for "Replace the original", as in the app; none elsewhere.</summary>
+        </member>
+        <member name="T:Filee.Cli.CliOptions">
+            <summary>A parsed command line. <see cref="P:Filee.Cli.CliOptions.Error"/> is set when the arguments are wrong.</summary>
+        </member>
+        <member name="P:Filee.Cli.CliOptions.From">
+            <summary>--from: files or folders 'engines install' takes the downloads from instead of the internet (#447).</summary>
+        </member>
+        <member name="P:Filee.Cli.CliOptions.SplitEvery">
+            <summary>--split-every: PDF → PDF in files of this many pages (#1259).</summary>
+        </member>
+        <member name="P:Filee.Cli.CliOptions.SplitEverySeconds">
+            <summary>--split-every with a length (10m, 90s, 1:30:00): video → video in parts of this many seconds (#1259).</summary>
+        </member>
+        <member name="P:Filee.Cli.CliOptions.SplitEveryText">
+            <summary>--split-every as it was typed, for the message when it doesn't suit the target.</summary>
+        </member>
+        <member name="P:Filee.Cli.CliOptions.SplitParts">
+            <summary>--split-parts: PDF → PDF, or video → video, in this many files of the same length (#1259).</summary>
+        </member>
+        <member name="F:Filee.Cli.CliOptions.MaxSplitSeconds">
+            <summary>The longest part --split-every takes: a day.</summary>
+        </member>
+        <member name="M:Filee.Cli.CliOptions.TryParseLength(System.String,System.Int32@)">
+            <summary>
+            A length of video in whole seconds: units (<c>90s</c>, <c>10m</c>, <c>1h30m</c>, <c>2.5m</c>) or colons
+            (<c>10:00</c>, <c>1:30:00</c>). A plain number has no unit and is left to the caller (pages).
+            </summary>
+        </member>
+        <member name="T:Filee.Cli.EnginesCommand.Result">
+            <summary>What install, download or remove did: <paramref name="State"/> is installed, saved, removed, skipped, failed or cancelled.</summary>
+            <param name="Message">The line for people: what was done, why nothing was, or the error.</param>
+            <param name="Version">The version of Filee's download, once it is installed or saved.</param>
+            <param name="Files">The files 'download' saved.</param>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.Result.#ctor(System.String,System.String,System.String,System.String,System.String,System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>What install, download or remove did: <paramref name="State"/> is installed, saved, removed, skipped, failed or cancelled.</summary>
+            <param name="Message">The line for people: what was done, why nothing was, or the error.</param>
+            <param name="Version">The version of Filee's download, once it is installed or saved.</param>
+            <param name="Files">The files 'download' saved.</param>
+        </member>
+        <member name="P:Filee.Cli.EnginesCommand.Result.Message">
+            <summary>The line for people: what was done, why nothing was, or the error.</summary>
+        </member>
+        <member name="P:Filee.Cli.EnginesCommand.Result.Version">
+            <summary>The version of Filee's download, once it is installed or saved.</summary>
+        </member>
+        <member name="P:Filee.Cli.EnginesCommand.Result.Files">
+            <summary>The files 'download' saved.</summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.WriteEngine(System.Text.Json.Utf8JsonWriter,Filee.Engines.Infrastructure.EngineInstaller,Filee.Engines.Infrastructure.EnginePackage,Filee.Engines.Infrastructure.EngineCopy)">
+            <summary>
+            One package in the JSON of 'engines'; fields that don't apply are left out, as in 'convert --json'. "version" is
+            the version Filee downloads, also next to "owncopy" (what 'install' would put in place of a copy on the PC).
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.InstallAsync(Filee.Engines.Infrastructure.EnginePackage,Filee.Cli.CliOptions,Filee.Cli.CliHost,System.IO.TextWriter,System.Threading.CancellationToken)">
+            <summary>
+            A package not installed, Filee's download of an outdated one, and Filee's download over a copy found on the PC
+            (it is the tested version), as the first-run setup installs it; the Engines page offers that last one only over
+            a copy that is older or whose version can't be read. The user's own copy is left in use.
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.DownloadAsync(Filee.Engines.Infrastructure.EnginePackage,Filee.Cli.CliOptions,Filee.Cli.CliHost,System.IO.TextWriter,System.Threading.CancellationToken)">
+            <summary>
+            Saves the package's downloads in the -o folder, checked as an install checks them, for 'install --from' on a
+            computer without internet (#447). Whatever is installed here stays as it is.
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.Remove(Filee.Engines.Infrastructure.EnginePackage,Filee.Engines.Infrastructure.EngineInstaller)">
+            <summary>Removes Filee's download, as the Engines page allows it; a copy Filee didn't download is never touched.</summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.ErrorText(System.Exception,Filee.Cli.CliHost)">
+            <summary>The reason as the Engines card gives it (EngineDownloadService.ErrorText), in English.</summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.Version(Filee.Engines.Infrastructure.EngineInstaller,Filee.Engines.Infrastructure.EnginePackage)">
+            <summary>The version Filee downloads: its main component's (the first).</summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.Bytes(System.Int64)">
+            <summary>"297 MB", "1.3 GB", as Settings → Engines shows sizes.</summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.Amount(System.Double)">
+            <summary>"850 KB", "12.3 MB", "1.23 GB" for download progress, as the Engines card shows it.</summary>
+        </member>
+        <member name="T:Filee.Cli.EnginesCommand.InstallProgress">
+            <summary>
+            Writes the installer's progress reports to stderr as they come (the installer reports about every 150 ms):
+            one JSON object per line with --json; else a line that updates in place on a terminal, and one line per
+            step and per 10% when stderr is redirected. Nothing with --quiet.
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.InstallProgress.#ctor(System.String,System.String,System.IO.TextWriter,System.Boolean,System.Boolean)">
+            <summary>
+            Writes the installer's progress reports to stderr as they come (the installer reports about every 150 ms):
+            one JSON object per line with --json; else a line that updates in place on a terminal, and one line per
+            step and per 10% when stderr is redirected. Nothing with --quiet.
+            </summary>
+        </member>
+        <member name="M:Filee.Cli.EnginesCommand.InstallProgress.Finish">
+            <summary>Ends a line that was updating in place.</summary>
+        </member>
+        <member name="T:Filee.Cli.SkiaImageDecoder">
+            <summary>
+            Decodes a picture with SkiaSharp, every pixel, so a file that is broken past its header fails. Only called for
+            pictures whose header said 2560 pixels or less on the long edge.
+            </summary>
+        </member>
+    </members>
+</doc>

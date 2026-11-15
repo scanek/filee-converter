@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Filee — Локальный Веб-Конвертер</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .badge-btn {
+      transition: all 0.15s ease-in-out;
+    }
+    .badge-btn:hover {
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+  <div class="max-w-2xl w-full bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-6 sm:p-8">
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-3">
+        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+        Filee Core 2.4.0 • 270+ офлайн форматов
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">
+        Filee Converter
+      </h1>
+      <p class="text-slate-400 text-sm mt-1">Приватная конвертация файлов прямо на вашем сервере</p>
+    </div>
+
+    <!-- Drop Zone -->
+    <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-2xl p-8 text-center cursor-pointer transition bg-slate-950/60 hover:bg-slate-950/90 group">
+      <input type="file" id="fileInput" class="hidden">
+      <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition">
+        <svg class="h-8 w-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+      </div>
+      <p id="fileName" class="text-base font-semibold text-slate-200">Перетащите файл сюда или нажмите для выбора</p>
+      <p id="fileDetails" class="text-xs text-slate-500 mt-1">Документы, изображения, видео, аудио, чертежи, 3D, книги</p>
+    </div>
+
+    <!-- Быстрый выбор форматов -->
+    <div class="mt-6">
+      <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+        Популярные целевые форматы:
+      </label>
+      <div class="flex flex-wrap gap-2 mb-3">
+        <button type="button" onclick="selectFormat('pdf')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">📄 PDF</button>
+        <button type="button" onclick="selectFormat('webp')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">🖼️ WEBP</button>
+        <button type="button" onclick="selectFormat('jpg')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">🖼️ JPG</button>
+        <button type="button" onclick="selectFormat('png')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">🖼️ PNG</button>
+        <button type="button" onclick="selectFormat('docx')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">📝 DOCX</button>
+        <button type="button" onclick="selectFormat('xlsx')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">📊 XLSX</button>
+        <button type="button" onclick="selectFormat('mp4')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">🎬 MP4</button>
+        <button type="button" onclick="selectFormat('mp3')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">🎵 MP3</button>
+        <button type="button" onclick="selectFormat('epub')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">📚 EPUB</button>
+        <button type="button" onclick="selectFormat('zip')" class="badge-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 border border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-300 hover:text-white">📦 ZIP</button>
+      </div>
+
+      <!-- Ввод формата и кнопка -->
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <input type="text" id="targetFormat" placeholder="Или введите формат (например: avif, heic, markdown, csv...)"
+                 class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 text-sm font-medium transition">
+        </div>
+        <button id="convertBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span>Конвертировать</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Индикатор статуса и прогресса -->
+    <div id="statusBox" class="mt-4 p-4 rounded-xl text-sm font-medium hidden"></div>
+  </div>
+
+  <footer class="mt-6 text-xs text-slate-600 text-center">
+    Развернуто в Docker на домашнем сервере • Filee OpenSource Engine
+  </footer>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const fileDetails = document.getElementById('fileDetails');
+    const targetFormat = document.getElementById('targetFormat');
+    const convertBtn = document.getElementById('convertBtn');
+    const statusBox = document.getElementById('statusBox');
+
+    let selectedFile = null;
+
+    dropzone.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => handleFile(e.target.files[0]);
+    dropzone.ondragover = (e) => { e.preventDefault(); dropzone.classList.add('border-indigo-500', 'bg-slate-900'); };
+    dropzone.ondragleave = () => dropzone.classList.remove('border-indigo-500', 'bg-slate-900');
+    dropzone.ondrop = (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-indigo-500', 'bg-slate-900');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    };
+
+    function handleFile(file) {
+      if (!file) return;
+      selectedFile = file;
+      fileName.textContent = file.name;
+      const sizeMb = (file.size / 1024 / 1024).toFixed(2);
+      fileDetails.textContent = `Размер: ${sizeMb} MB • Готов к конвертации`;
+      statusBox.classList.add('hidden');
+    }
+
+    function selectFormat(fmt) {
+      targetFormat.value = fmt;
+      targetFormat.focus();
+    }
+
+    convertBtn.onclick = async () => {
+      if (!selectedFile) {
+        showStatus('error', '⚠️ Пожалуйста, сначала выберите файл!');
+        return;
+      }
+      const format = targetFormat.value.trim().toLowerCase().replace(/^\./, '');
+      if (!format) {
+        showStatus('error', '⚠️ Укажите желаемый формат (например: pdf, webp, mp4)!');
+        return;
+      }
+
+      convertBtn.disabled = true;
+      showStatus('loading', '⏳ Конвертация выполняется на сервере, подождите...');
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('target_format', format);
+
+      try {
+        const response = await fetch('/api/convert', { method: 'POST', body: formData });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.detail || `Ошибка сервера (${response.status})`);
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        const nameParts = selectedFile.name.split('.');
+        if (nameParts.length > 1) nameParts.pop();
+        a.download = `${nameParts.join('.')}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+
+        showStatus('success', `✅ Файл успешно сконвертирован в .${format} и скачан!`);
+      } catch (err) {
+        showStatus('error', `❌ Ошибка конвертации: ${err.message}`);
+      } finally {
+        convertBtn.disabled = false;
+      }
+    };
+
+    function showStatus(type, text) {
+      statusBox.classList.remove('hidden', 'bg-red-500/10', 'text-red-400', 'border-red-500/20', 'bg-indigo-500/10', 'text-indigo-400', 'border-indigo-500/20', 'bg-green-500/10', 'text-green-400', 'border-green-500/20');
+      statusBox.classList.add('border');
+
+      if (type === 'loading') {
+        statusBox.classList.add('bg-indigo-500/10', 'text-indigo-400', 'border-indigo-500/20');
+      } else if (type === 'success') {
+        statusBox.classList.add('bg-green-500/10', 'text-green-400', 'border-green-500/20');
+      } else {
+        statusBox.classList.add('bg-red-500/10', 'text-red-400', 'border-red-500/20');
+      }
+      statusBox.textContent = text;
+    }
+  </script>
+</body>
+</html>

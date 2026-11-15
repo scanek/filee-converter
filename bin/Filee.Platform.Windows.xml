@@ -1,0 +1,486 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Filee.Platform.Windows</name>
+    </assembly>
+    <members>
+        <member name="T:Filee.Platform.Windows.AuthenticodeSigner">
+            <summary>The certificate that signed a program.</summary>
+            <param name="Subject">Who it was issued to, e.g. "CN=Open Source Developer, …".</param>
+            <param name="Issuer">The certificate authority that issued it, e.g. "CN=Certum Code Signing 2021 CA, …".</param>
+            <param name="KeySha256">SHA-256 of its public key (SubjectPublicKeyInfo), lowercase hex.</param>
+        </member>
+        <member name="M:Filee.Platform.Windows.AuthenticodeSigner.#ctor(System.String,System.String,System.String)">
+            <summary>The certificate that signed a program.</summary>
+            <param name="Subject">Who it was issued to, e.g. "CN=Open Source Developer, …".</param>
+            <param name="Issuer">The certificate authority that issued it, e.g. "CN=Certum Code Signing 2021 CA, …".</param>
+            <param name="KeySha256">SHA-256 of its public key (SubjectPublicKeyInfo), lowercase hex.</param>
+        </member>
+        <member name="P:Filee.Platform.Windows.AuthenticodeSigner.Subject">
+            <summary>Who it was issued to, e.g. "CN=Open Source Developer, …".</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.AuthenticodeSigner.Issuer">
+            <summary>The certificate authority that issued it, e.g. "CN=Certum Code Signing 2021 CA, …".</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.AuthenticodeSigner.KeySha256">
+            <summary>SHA-256 of its public key (SubjectPublicKeyInfo), lowercase hex.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.AuthenticodeSigner.SamePublisher(Filee.Platform.Windows.AuthenticodeSigner)">
+            <summary>Same subject from the same certificate authority (a renewed certificate may have a new key).</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.Authenticode">
+            <summary>Authenticode checks. Every member is safe to call on any OS.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.Authenticode.TrustedSigner(System.String,System.Boolean)">
+            <summary>
+            The certificate that signed <paramref name="path"/>, or null when the file is not signed, Windows does not trust
+            its signature, or this is not Windows.
+            </summary>
+            <param name="checkRevocation">
+            Also asks the certificate authorities whether a certificate in the chain was revoked (needs the network).
+            </param>
+        </member>
+        <member name="F:Filee.Platform.Windows.Authenticode.GenericVerifyV2">
+            <summary>WINTRUST_ACTION_GENERIC_VERIFY_V2: the Authenticode policy.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.Authenticode.InvalidWindow">
+            <summary>INVALID_HANDLE_VALUE: no window, so WinVerifyTrust never asks the user.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.DesktopShellView.Use``1(System.Func{System.Object,``0})">
+            <summary>
+            Runs <paramref name="use"/> with the desktop view's IShellFolderViewDual, a dispatch object (its SelectedItems,
+            its Application). Throws when Explorer's desktop isn't there (another shell, Explorer restarting).
+            </summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.Elevation">
+            <summary>Elevation checks and the de-elevated restart. Every member is safe to call on any OS.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.Elevation.Probe">
+            <summary>Reads the integrity levels of this process and of Explorer. <see cref="P:Filee.Core.Platform.ElevationState.Unknown"/> off Windows.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.Elevation.RelaunchThroughShell(System.String,System.String,System.String@)">
+            <summary>
+            Starts <paramref name="executable"/> through Explorer, so it gets Explorer's rights instead of this process's.
+            Returns false when there is no Explorer desktop to ask (another shell, Explorer restarting) or it refused;
+            <paramref name="error"/> then says why, in English.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.Elevation.ShowWarning(System.String)">
+            <summary>Shows a plain Windows message box (for problems before Filee's own windows can open). No-op off Windows.</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.ExplorerMenuPackage">
+            <summary>
+            Identity, file names and manifest of the Explorer context-menu package. build/tools/make-explorer-package.cs packs
+            <see cref="M:Filee.Platform.Windows.ExplorerMenuPackage.CreateManifest(System.String)"/> at build time; <see cref="T:Filee.Platform.Windows.ExplorerMenuRegistration"/> registers the result.
+            </summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.PackageName">
+            <summary>Package name (the <c>Identity/@Name</c>); also used to find and remove the registration.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.Publisher">
+            <summary>
+            Publisher of the unsigned package. Windows 11 only registers unsigned packages whose publisher contains this
+            special OID, so they can never collide with (or spoof) a signed package.
+            </summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.FamilyName">
+            <summary>
+            Package family name = name + "_" + a hash of <see cref="F:Filee.Platform.Windows.ExplorerMenuPackage.Publisher"/> (checked by a test against
+            <c>PackageFamilyNameFromId</c>). Used to look the registration up without PowerShell.
+            </summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.ManifestVersion">
+            <summary>
+            Version of the manifest, deliberately independent of the app version: registering an unsigned package with a
+            COM server needs administrator rights, so the package must stay valid across app updates (the DLL itself is
+            loaded from the install folder and is updated with the app). Bump it only when the manifest changes; the app
+            then offers to register again.
+            </summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.ClassId">
+            <summary>CLSID of the IExplorerCommand in FileeExplorerMenu.dll (kClsidCommand in FileeExplorerMenu.c).</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.DllFileName">
+            <summary>The native COM server next to Filee.exe.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.PackageFileName">
+            <summary>The package file next to Filee.exe.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.TitleFileName">
+            <summary>
+            File in the data folder (%APPDATA%\Filee, TITLE_FILE in FileeExplorerMenu.c) whose first line is the menu title
+            in the UI language. It exists while the Explorer menu setting is on; without it the DLL hides the entry.
+            </summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.Architecture">
+            <summary>
+            Processor architecture of the DLL (it is loaded into explorer.exe, so it must match Explorer) when the build
+            names none: x64. ARM64 builds of Filee ship an ARM64 DLL in an "arm64" package.
+            </summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.ExplorerMenuPackage.Architectures">
+            <summary>The package architectures <see cref="M:Filee.Platform.Windows.ExplorerMenuPackage.CreateManifest(System.String)"/> accepts (build/build-explorer-menu.ps1 -Architecture).</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.MinimumBuild">
+            <summary>Windows 11 (build 22000) is the first version with the new context menu and unsigned packages.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuPackage.LogoPath">
+            <summary>Path of the logo inside the package (shown in package lists only; the menu uses Filee.exe's icon).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuPackage.CreateManifest(System.String)">
+            <summary>
+            Builds AppxManifest.xml for a DLL built for <paramref name="architecture"/> (one of <see cref="P:Filee.Platform.Windows.ExplorerMenuPackage.Architectures"/>).
+            Paths in it (Filee.exe, the DLL) are relative to the external location, i.e. the install folder given at
+            registration.
+            </summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.ExplorerMenuRegistration">
+            <summary>Adds, removes and inspects the Explorer menu package for the current user.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuRegistration.ErrorCancelled">
+            <summary>Win32 ERROR_CANCELLED: the user declined the UAC prompt.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ExplorerMenuRegistration.Timeout">
+            <summary>Add-AppxPackage usually takes a few seconds; after this the attempt counts as failed.</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.ExplorerMenuRegistration.RegisteredPackage">
+            <summary>A registered copy of the package.</summary>
+            <param name="FullName">Package full name, e.g. <c>Filee.ExplorerMenu_1.0.0.0_x64__c73vxh346rtay</c>.</param>
+            <param name="Version">Identity version from the full name.</param>
+            <param name="ExternalLocation">Folder the package points at (null when Windows does not say).</param>
+            <param name="Architecture">Identity architecture from the full name ("x64" or "arm64").</param>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.RegisteredPackage.#ctor(System.String,System.Version,System.String,System.String)">
+            <summary>A registered copy of the package.</summary>
+            <param name="FullName">Package full name, e.g. <c>Filee.ExplorerMenu_1.0.0.0_x64__c73vxh346rtay</c>.</param>
+            <param name="Version">Identity version from the full name.</param>
+            <param name="ExternalLocation">Folder the package points at (null when Windows does not say).</param>
+            <param name="Architecture">Identity architecture from the full name ("x64" or "arm64").</param>
+        </member>
+        <member name="P:Filee.Platform.Windows.ExplorerMenuRegistration.RegisteredPackage.FullName">
+            <summary>Package full name, e.g. <c>Filee.ExplorerMenu_1.0.0.0_x64__c73vxh346rtay</c>.</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.ExplorerMenuRegistration.RegisteredPackage.Version">
+            <summary>Identity version from the full name.</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.ExplorerMenuRegistration.RegisteredPackage.ExternalLocation">
+            <summary>Folder the package points at (null when Windows does not say).</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.ExplorerMenuRegistration.RegisteredPackage.Architecture">
+            <summary>Identity architecture from the full name ("x64" or "arm64").</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.ExplorerMenuRegistration.BuildArchitecture">
+            <summary>
+            The package architecture of the running build ("x64" or "arm64"): the DLL next to Filee.exe and the package's
+            manifest are built for it (build/build-explorer-menu.ps1 -Architecture).
+            </summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.ExplorerMenuRegistration.IsSupportedOs">
+            <summary>
+            Windows 11 on x64 or ARM64: the new context menu exists, and Explorer can load the DLL shipped with this build
+            (built for the same architecture as Filee itself, so not an x64 Filee on ARM64 Windows).
+            </summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.ExplorerMenuRegistration.TitleFilePath">
+            <summary>The title file the DLL reads (see <see cref="F:Filee.Platform.Windows.ExplorerMenuPackage.TitleFileName"/>).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.HasFiles(System.String)">
+            <summary>True when the DLL and the package were shipped next to Filee.exe (installed builds).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.GetState(System.String)">
+            <summary>State of the top-level menu entry for the Filee in <paramref name="installFolder"/>.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.StateOf(Filee.Platform.Windows.ExplorerMenuRegistration.RegisteredPackage,System.String,System.String)">
+            <summary>
+            On when <paramref name="package"/> is this build's: registered for <paramref name="installFolder"/>, at least at
+            this manifest version and for <paramref name="architecture"/>. Setup switches an install between x64 and ARM64
+            in place (same folder, same version), after which the package registered before is the other architecture's:
+            Outdated, so it is registered again.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.IsOtherArchitecture(Filee.Platform.Windows.ExplorerMenuRegistration.RegisteredPackage,System.String)">
+            <summary>
+            Registered for another architecture than <paramref name="architecture"/>. To Windows that is another package
+            of the same family, so it is removed before this build's is added rather than updated.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.Find">
+            <summary>The package as registered for the current user, or null.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.SetTitle(System.String)">
+            <summary>
+            Shows the entry with this title (the UI language), or hides it (<c>null</c>). The DLL reads the file on every
+            right-click, so this takes effect immediately and needs no administrator rights.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.ReadTitle">
+            <summary>The current title, or null when the entry is switched off.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.AddAsync(System.String)">
+            <summary>Registers the package that ships next to Filee.exe, with the install folder as external location.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.RemoveAsync(System.Boolean)">
+            <summary>
+            Removes the package for the current user. Normally no administrator rights are needed; with
+            <paramref name="allowElevation"/> a failed attempt is repeated through a UAC prompt.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.RemoveOwnedAsync(System.String)">
+            <summary>Removes only the registered package whose external location is this portable folder.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.BuildAddScript(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            PowerShell that registers the package and writes the error message to <paramref name="errorFile"/>; with
+            <paramref name="removeFirst"/> it removes the registered one first (see <see cref="M:Filee.Platform.Windows.ExplorerMenuRegistration.IsOtherArchitecture(Filee.Platform.Windows.ExplorerMenuRegistration.RegisteredPackage,System.String)"/>).
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.BuildRemoveScript(System.String)">
+            <summary>PowerShell that removes every registered version of the package.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.CreateStartInfo(System.String,System.Boolean)">
+            <summary>
+            Start info for Windows PowerShell (part of Windows; the Appx cmdlets are not in PowerShell 7 everywhere).
+            The script goes in as plain <c>-Command</c> text rather than <c>-EncodedCommand</c>, which security software
+            tends to distrust; it only contains single-quoted strings, so wrapping it in double quotes is safe.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.Quote(System.String)">
+            <summary>
+            A PowerShell single-quoted string literal. PowerShell also treats the typographic quotes ‘ ’ ‚ ‛ as single
+            quotes (a folder may be called "Kim’s PC"), so those are doubled as well.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.ComputeFamilyName">
+            <summary>Family name computed by Windows from the package name and publisher (to check <see cref="F:Filee.Platform.Windows.ExplorerMenuPackage.FamilyName"/>).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.ShortenDeploymentError(System.String)">
+            <summary>
+            Deployment errors end with "NOTE: For additional information, look for [ActivityId] ..." and span several
+            lines; the UI shows one paragraph without that tail.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerMenuRegistration.ExternalLocationOf(System.String)">
+            <summary>The install folder the package points to, or null when Windows can't tell.</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.ShellWindowEntry">
+            <summary>One entry of Shell.Application.Windows(): its top-level window and its tab window (0 when unknown).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellWindowEntry.#ctor(System.IntPtr,System.IntPtr)">
+            <summary>One entry of Shell.Application.Windows(): its top-level window and its tab window (0 when unknown).</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.TabWindow">
+            <summary>A ShellTabWindowClass child of an Explorer window, in z-order.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.TabWindow.#ctor(System.IntPtr,System.Boolean)">
+            <summary>A ShellTabWindowClass child of an Explorer window, in z-order.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerTabs.PickActiveTab(System.Collections.Generic.IEnumerable{Filee.Platform.Windows.TabWindow})">
+            <summary>
+            The active tab among the tab windows of one Explorer window: the visible one, else the first in z-order
+            (the active tab is on top). 0 when the window has no tab windows (the desktop, other windows).
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerTabs.Candidates(System.Collections.Generic.IReadOnlyList{Filee.Platform.Windows.ShellWindowEntry},System.IntPtr,System.IntPtr)">
+            <summary>
+            The entries to read the selection from, in order. Only entries of the foreground window count. When one of them
+            is the active tab, it is the only one: another tab's selection, even a stale one, is never what the user means.
+            Without tabs, or when no entry gives out its tab window, every entry of the window is tried in order.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerTabs.ActiveTabOf(System.IntPtr)">
+            <summary>The active tab window of an Explorer window, or 0.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ExplorerTabs.TabOf(System.Object)">
+            <summary>The tab window of one Shell.Application window (an IWebBrowser2), or 0 when it doesn't say.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.Foreground.AllowOtherProcess">
+            <summary>Lets another process (the running Filee) bring its window to the front. No-op off Windows.</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.KnownFolders.Downloads">
+            <summary>The user's Downloads folder, or null when the shell can't tell.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.NativeMethods.GetSidSubAuthorityCount(System.IntPtr)">
+            <summary>Pointer to the sub-authority count (a byte) inside a SID.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.NativeMethods.GetSidSubAuthority(System.IntPtr,System.UInt32)">
+            <summary>Pointer to sub-authority <paramref name="index"/> (a DWORD) inside a SID.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.NativeMethods.GetShellWindow">
+            <summary>The desktop window of the shell (Explorer's Progman), or 0 when no shell runs.</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.NativeMethods.OPENASINFO">
+            <summary>OPENASINFO for <see cref="M:Filee.Platform.Windows.NativeMethods.SHOpenWithDialog(System.IntPtr,Filee.Platform.Windows.NativeMethods.OPENASINFO@)"/>: the file (a UTF-16 string) and what the dialog may do.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.NativeMethods.OAIF_ALLOW_REGISTRATION">
+            <summary>Lets the dialog offer "always use this app"; registers the choice; opens the file with the app picked.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.NativeMethods.OAIF_REGISTER_EXT">
+            <summary>Lets the dialog offer "always use this app"; registers the choice; opens the file with the app picked.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.NativeMethods.OAIF_EXEC">
+            <summary>Lets the dialog offer "always use this app"; registers the choice; opens the file with the app picked.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.NativeMethods.SHOpenWithDialog(System.IntPtr,Filee.Platform.Windows.NativeMethods.OPENASINFO@)">
+            <summary>The shell's "Open with" dialog. Blocks until it closes; returns an HRESULT (cancelled is an error).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.NativeMethods.ClassNameOf(System.IntPtr)">
+            <summary>Returns the Win32 class name of a window ("CabinetWClass" for Explorer, ...).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ProcessMemory.TrimWorkingSet">
+            <summary>
+            Removes as many pages as possible from the working set (they come back on use). No-op off Windows; false when
+            Windows refused.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.RecycleBin.Move(System.String)">
+            <summary>Null when <paramref name="path"/> is in the Recycle Bin, otherwise why it was left where it is.</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.RecycleBin.RecycleOnly">
+            <summary>Lets a delete go ahead only when Windows will recycle it.</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.RecycleBin.IShellItem">
+            <summary>Passed through to IFileOperation only; its own methods are never called.</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.RecycleBin.IFileOperation">
+            <summary>IFileOperation in vtable order; only the methods Filee calls are typed, the others are never called.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.ShellInterop.SID_STopLevelBrowser">
+            <summary>Service id of the browser that hosts a shell view: the Explorer window, or with tabs the tab.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellInterop.IShellBrowser.GetWindow(System.IntPtr@)">
+            <summary>IOleWindow::GetWindow: with Explorer tabs, the tab's own ShellTabWindowClass window.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellLinks.IsShortcut(System.String)">
+            <summary>True for a path ending in ".lnk".</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellLinks.TargetOf(System.String)">
+            <summary>
+            The existing file or folder the shortcut at <paramref name="path"/> points to; null when it isn't a shortcut,
+            points to something that isn't a file (Control Panel, an installer-advertised app) or to nothing any more.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellLinks.Create(System.String,System.String)">
+            <summary>Writes a shortcut to <paramref name="target"/> (the tests make their shortcuts with it).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellLinks.ReadWithShell(System.String)">
+            <summary>The target as the shell reads it; null when it has no file system path or the shell failed.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellLinks.ReadFromFile(System.String)">
+            <summary>The target as the .lnk file stores it in its LinkInfo; null when unreadable or not stored.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellLinks.ParseTarget(System.ReadOnlySpan{System.Byte})">
+            <summary>[MS-SHLLINK]: the path in LinkInfo (local base path or share name, then the common path suffix).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellLinks.Field(System.ReadOnlySpan{System.Byte},System.Int32)">
+            <summary>A little-endian 32-bit field; 0 past the end.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellLinks.Ansi(System.ReadOnlySpan{System.Byte},System.UInt32)">
+            <summary>A NUL-terminated string in the system's ANSI code page, as Windows writes it.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.ShellLinks.Unicode(System.ReadOnlySpan{System.Byte},System.UInt32)">
+            <summary>A NUL-terminated UTF-16 string.</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.WindowBackdropState">
+            <param name="Redirected">The window draws into a redirection surface (no DirectComposition / WinUI tree).</param>
+            <param name="Layered">WS_EX_LAYERED: Avalonia never sets it, so something else did.</param>
+            <param name="SystemBackdrop">DWMWA_SYSTEMBACKDROP_TYPE (Windows 11 22H2+), -1 when it can't be read.</param>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowBackdropState.#ctor(System.Boolean,System.Boolean,System.Int32)">
+            <param name="Redirected">The window draws into a redirection surface (no DirectComposition / WinUI tree).</param>
+            <param name="Layered">WS_EX_LAYERED: Avalonia never sets it, so something else did.</param>
+            <param name="SystemBackdrop">DWMWA_SYSTEMBACKDROP_TYPE (Windows 11 22H2+), -1 when it can't be read.</param>
+        </member>
+        <member name="P:Filee.Platform.Windows.WindowBackdropState.Redirected">
+            <summary>The window draws into a redirection surface (no DirectComposition / WinUI tree).</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.WindowBackdropState.Layered">
+            <summary>WS_EX_LAYERED: Avalonia never sets it, so something else did.</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.WindowBackdropState.SystemBackdrop">
+            <summary>DWMWA_SYSTEMBACKDROP_TYPE (Windows 11 22H2+), -1 when it can't be read.</summary>
+        </member>
+        <member name="P:Filee.Platform.Windows.WindowBackdropState.HasForeignMaterial">
+            <summary>A backdrop material Filee didn't ask for.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowBackdrop.ClearForeign(System.IntPtr)">
+            <summary>
+            Sets the backdrop back to none. True when Windows took the change. Only for windows Filee never gives a material.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowBackdrop.ResetAccent(System.IntPtr)">
+            <summary>Turns off an accent blur or acrylic (ACCENT_DISABLED). True when Windows took it.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowBackdrop.TransparencyEffects">
+            <summary>Settings → Personalization → Colors → Transparency effects; null when it can't be read.</summary>
+        </member>
+        <member name="T:Filee.Platform.Windows.WindowsPlatformServices">
+            <summary>Explorer integration, auto-start and system settings on Windows.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.WindowsPlatformServices.FileManagerClasses">
+            <summary>Window classes that belong to Explorer windows and the desktop.</summary>
+        </member>
+        <member name="F:Filee.Platform.Windows.WindowsPlatformServices.FileManagerProcesses">
+            <summary>
+            File managers people use instead of Explorer, by process name (issue #124): their windows count as "over the
+            file manager" for gestures too. Dragging files out of them reaches the donut like a drag from Explorer.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.IsFileManager(System.String,System.String)">
+            <summary>True for a top-level window of Explorer, the desktop or another file manager.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.IsDesktop(System.String)">
+            <summary>True for the desktop's window classes: its icons are not among Shell.Application's windows.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.StandsForDesktop(System.IntPtr,System.IntPtr,System.String)">
+            <summary>
+            True when the end of a window's owner chain (<paramref name="rootOwner"/>) is another window and the desktop.
+            Desktop icon layers (apps that hide Explorer's icon view and draw the icons themselves) cover the screen with a
+            window owned by the shell's desktop window, so a mouse gesture over them acts as on the desktop: the files
+            arrive through the OLE drag the layer starts. The selection shortcut is left out on purpose: it would read
+            Explorer's hidden desktop view, and nothing shows that a given layer keeps that view's selection in step.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.DesktopOrSelf(System.IntPtr)">
+            <summary>The desktop for a top-level window it owns (see <see cref="M:Filee.Platform.Windows.WindowsPlatformServices.StandsForDesktop(System.IntPtr,System.IntPtr,System.String)"/>), else the window.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.GetFileManagerSelection">
+            <summary>
+            Reads the selection of the foreground Explorer window, or of the desktop, through the Shell automation objects.
+            Must be called on an STA thread (the Avalonia UI thread is STA).
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.DesktopSelection">
+            <summary>The files selected on the desktop (#450).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.ExistingFiles(System.Object)">
+            <summary>The paths of a shell item collection that are files on disk.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.SelectionOf(System.IntPtr)">
+            <summary>The selected files of an Explorer window; with tabs, of its active tab (see <see cref="T:Filee.Platform.Windows.ExplorerTabs"/>).</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.ForegroundRoot">
+            <summary>The top-level window of the foreground window, or 0 when there is none.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.CheckStartupEntry(System.String,System.Object)">
+            <summary>Throws <see cref="T:Filee.Core.Platform.StartupEntryNotKeptException"/> unless <paramref name="readBack"/> is the command written.</summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.SetContextMenu(System.Boolean,System.String,System.String)">
+            <summary>
+            Registers a per-user "Convert with Filee" verb for all files (no admin rights needed) and a Send To shortcut.
+            On Windows 11 the classic verb appears under "Show more options"; the top-level entry is the packaged
+            IExplorerCommand (<see cref="T:Filee.Platform.Windows.ExplorerMenuRegistration"/>), which this switches on and off through its title file.
+            When that package is registered the classic verb is removed, because Windows also lists the packaged command
+            under "Show more options" and the entry would appear twice there.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.OpenWith(System.String)">
+            <summary>
+            The dialog Explorer shows for "Open with → Choose another app". It blocks until it closes, so it runs on a
+            thread of its own (an STA one, as the shell expects), never on the UI thread.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Windows.WindowsPlatformServices.CreateShortcut(System.String,System.String,System.String,System.String)">
+            <summary>Creates a .lnk file through the WScript.Shell automation object.</summary>
+        </member>
+    </members>
+</doc>

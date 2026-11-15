@@ -1,0 +1,223 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Filee.Platform.MacOS</name>
+    </assembly>
+    <members>
+        <member name="F:Filee.Platform.MacOS.MacOSClipboard.PictureLimit">
+            <summary>
+            The largest picture also put on the clipboard as itself, beside the file; a larger one goes as the file only,
+            so the clipboard doesn't hold a copy of a huge file in memory.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSClipboard.Read">
+            <summary>
+            The existing files copied to the clipboard, else its picture in the first of
+            <see cref="P:Filee.Platform.MacOS.PasteboardPaths.PictureTypes"/> it has; null for neither. Copied files that are gone give null, not
+            the icon Finder puts beside them.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSClipboard.Write(System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Replaces the clipboard with <paramref name="paths"/>, one item per file (its file URL); a single picture also
+            carries its bytes under its own type, for apps that paste pictures but not files.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSClipboard.Available(System.IntPtr,System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>The first of <paramref name="types"/> the pasteboard has, or null.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSClipboard.Bytes(System.IntPtr)">
+            <summary>A copy of an NSData's bytes; null for nil.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSClipboard.NSString(System.String)">
+            <summary>An autoreleased NSString, released with the surrounding <see cref="T:Filee.Platform.MacOS.MacOSClipboard.AutoreleasePool"/>.</summary>
+        </member>
+        <member name="P:Filee.Platform.MacOS.MacOSIntegrationFiles.ServiceStatusKey">
+            <summary>
+            The service's entry in the pbs NSServicesStatus preferences: "bundle id - menu title - message", quoted for
+            defaults, which reads the key as a property list string.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSIntegrationFiles.ServiceStatus(System.Boolean)">
+            <summary>On or off in the right-click menu and the Services menu, as System Settings writes it.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSLocale.PreferredLanguage">
+            <summary>The first language the user prefers, e.g. "ko-KR" or "zh-Hans-CN"; null when macOS gives none.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSPlatformServices.RequestAccessibilityPermission">
+            <summary>Asks for Accessibility with macOS's own alert (nothing happens when Filee already has it).</summary>
+        </member>
+        <member name="P:Filee.Platform.MacOS.MacOSPlatformServices.SupportsDockVisibility">
+            <summary>Whether Filee can change its visibility in the macOS Dock.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSPlatformServices.TrySetShowInDock(System.Boolean)">
+            <summary>Changes whether Filee appears in the macOS Dock.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSPlatformServices.SetContextMenu(System.Boolean,System.String,System.String)">
+            <summary>
+            Shows or hides Filee's own service in Finder's right-click menu (the same switch as System Settings >
+            Keyboard > Keyboard Shortcuts > Services), and removes the Automator Quick Action earlier builds installed.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSPlatformServices.OpenFile(System.String)">
+            <summary>Through open(1), like a double-click in Finder.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSPlatformServices.RestoreWindow(System.IntPtr)">
+            <summary>Restores a topmost window's native class and style after it hides or before it closes.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSPlatformServices.AcceptFileDrags(System.IntPtr)">
+            <summary>
+            Lets drags that offer file paths or file promises in older forms reach the window (the donut), not just ones
+            offering file URLs: other file managers than Finder write those (issue #160).
+            </summary>
+        </member>
+        <member name="T:Filee.Platform.MacOS.MacOSPortableIntegration">
+            <summary>Removes only entries whose stored command identifies this portable copy.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSPortableIntegration.#ctor(System.String)">
+            <summary>Removes only entries whose stored command identifies this portable copy.</summary>
+        </member>
+        <member name="P:Filee.Platform.MacOS.MacOSPortableIntegration.Current">
+            <summary>Integration in the current user's Library.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSPortableIntegration.HasOwnedEntries(System.String)">
+            <summary>Whether a LaunchAgent or legacy workflow belongs to this executable.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSPortableIntegration.RemoveOwnedEntries(System.String)">
+            <summary>Rechecks ownership; the bundle's shared NSServicesStatus preference is deliberately left alone.</summary>
+        </member>
+        <member name="F:Filee.Platform.MacOS.MacOSServicesProvider.MenuItem">
+            <summary>The service's menu title in Info.plist; ServicesMenu.strings in each .lproj translates it.</summary>
+        </member>
+        <member name="F:Filee.Platform.MacOS.MacOSServicesProvider.Message">
+            <summary>The selector macOS sends, without its argument labels (NSMessage in Info.plist).</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSServicesProvider.Register(System.Action{System.Collections.Generic.IReadOnlyList{System.String}},System.Action{System.Collections.Generic.IReadOnlyList{System.String}})">
+            <summary>
+            Answers the service from now on; <paramref name="handler"/> gets the files (on the main thread). Call it on the
+            main thread early at start: a service picked while Filee wasn't running is delivered once this is set. When the
+            pasteboard names no existing file, <paramref name="nothingUsable"/> gets the types it offered instead.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSServicesProvider.FilesOn(System.IntPtr)">
+            <summary>
+            The existing files and folders on a pasteboard. Finder puts file URLs there; other file managers (QSpace Pro,
+            issue #160) may put the older NSFilenamesPboardType array of paths, or only text: the first of these that names any.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSServicesProvider.FileUrls(System.IntPtr)">
+            <summary>File URLs read as NSURL objects (AppKit resolves file reference URLs).</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSServicesProvider.ItemStrings(System.IntPtr,System.String)">
+            <summary>The value of <paramref name="type"/> as text on each pasteboard item that has it.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSServicesProvider.Strings(System.IntPtr)">
+            <summary>The strings in an NSArray (anything else in it is skipped); none for nil or any other object.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.MacOSServicesProvider.NSString(System.String)">
+            <summary>An autoreleased NSString (the service method runs inside AppKit's autorelease pool).</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.CurrentModifiers">
+            <summary>The modifier keys held now (kCGEventSourceStateCombinedSessionState: every keyboard, including posted keys).</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.WindowOwnerNames">
+            <summary>Process names of the app windows on screen (layer 0), front to back.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.FrontmostProcessId">
+            <summary>The process id of the app in front (NSWorkspace.frontmostApplication), 0 if none.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.ActivateProcess(System.Int32)">
+            <summary>Brings the app with process id <paramref name="pid"/> to the front, if it still runs.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.AddDraggedTypes(System.IntPtr,System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Adds <paramref name="types"/> to the drag types of every view in <paramref name="window"/> that already takes
+            drags (Avalonia's view, registered for public.data only). AppKit sends a drag to a view only when it offers one
+            of the view's types, and some apps' file drags may not conform to public.data.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.SetShowInDock(System.Boolean)">
+            <summary>
+            Sets whether Filee appears in the Dock by changing the application activation policy. Changing the policy
+            deactivates the app, so activate it again when the change succeeds.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.MoveToTrash(System.String)">
+            <summary>
+            NSFileManager trashItemAtURL: the file goes to the Trash of its volume, where Finder can put it back. Null when
+            it worked, else the reason macOS gives.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.AliasTarget(System.String)">
+            <summary>
+            The existing file or folder the Finder alias at <paramref name="path"/> points to; null for anything that
+            isn't an alias, a broken alias, one whose target is in a Trash, or one whose target is on a volume that isn't
+            mounted: resolving never shows UI or mounts a server, since a drag waits on it.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.CreateAlias(System.String,System.String)">
+            <summary>Writes a Finder alias at <paramref name="path"/> to <paramref name="target"/> (for the tests).</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.NativeMethods.RequestAccessibility">
+            <summary>
+            Whether Filee may watch input; when not, macOS shows its own alert (Open System Settings / Deny) and lists
+            Filee under Accessibility, switched off, so the user only has to switch it on.
+            </summary>
+        </member>
+        <member name="F:Filee.Platform.MacOS.PasteboardPaths.FilenamesType">
+            <summary>The pasteboard type of an array of paths, as older apps write it.</summary>
+        </member>
+        <member name="F:Filee.Platform.MacOS.PasteboardPaths.FilenamesUti">
+            <summary>
+            The same type as a pasteboard item lists it: AppKit gives types that aren't UTIs a dynamic UTI.
+            </summary>
+        </member>
+        <member name="P:Filee.Platform.MacOS.PasteboardPaths.DragTypes">
+            <summary>
+            Types the donut registers for on top of Avalonia's own, so a drag offering only these still reaches it (and its
+            types get logged when Filee can't read them). The three file promise types can't be received; a browser drag
+            that offers one also offers the picture's or link's address (public.url) and HTML, which Filee reads instead,
+            and sometimes the picture itself.
+            </summary>
+        </member>
+        <member name="P:Filee.Platform.MacOS.PasteboardPaths.PictureTypes">
+            <summary>
+            Picture types read from the clipboard, in order of preference, with the extension their bytes are saved under.
+            A screenshot copied with Ctrl comes as PNG and TIFF: PNG first, TIFF (the largest) last.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.PasteboardPaths.PictureTypeOf(System.String)">
+            <summary>
+            The pasteboard type of the picture at <paramref name="path"/>, by its extension, for pasting it as itself; null
+            for anything else.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.PasteboardPaths.IsFilenamesType(System.String)">
+            <summary>Whether <paramref name="type"/> names NSFilenamesPboardType, by its name or its dynamic UTI.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.PasteboardPaths.FromPropertyList(System.Byte[])">
+            <summary>
+            The paths in an NSFilenamesPboardType property list as a pasteboard item's data: AppKit writes property lists to
+            the pasteboard as XML.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.PasteboardPaths.FromPropertyList(System.String)">
+            <summary>The paths in an NSFilenamesPboardType property list written as XML.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.PasteboardPaths.FromFileUrl(System.String)">
+            <summary>The path of a file URL ("file:///Users/a/b%20c.png"), or null for anything else.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.PasteboardPaths.FromText(System.String)">
+            <summary>Lines of plain text that are absolute paths or file URLs; anything else in the text is skipped.</summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.PasteboardPaths.FirstExisting(System.Collections.Generic.IEnumerable{System.Func{System.Collections.Generic.IEnumerable{System.String}}},System.Func{System.String,System.Boolean})">
+            <summary>
+            The paths of the first source, in order of preference, that names any path that <paramref name="exists"/>:
+            only those, without repeats. Later sources aren't read once one has given paths.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.MacOS.PasteboardPaths.Exists(System.String)">
+            <summary>A file or folder at <paramref name="path"/>.</summary>
+        </member>
+    </members>
+</doc>

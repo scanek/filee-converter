@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Filee.Platform.Linux</name>
+    </assembly>
+    <members>
+        <member name="F:Filee.Platform.Linux.FreedesktopTrash.OwnerOnly">
+            <summary>The spec asks for Trash folders only their owner can open.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.FreedesktopTrash.Move(System.String,System.String)">
+            <summary>Null when <paramref name="path"/> is in <paramref name="trash"/>, otherwise why it was left where it is.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.FreedesktopTrash.Escape(System.String)">
+            <summary>The path in the record: each part URL-encoded, the slashes kept.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.FreedesktopTrash.MountOf(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>The mount point a path is on: the longest mounted root that holds it (<c>/home</c> doesn't hold <c>/home2</c>).</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.LinuxPlatformServices.OpenFile(System.String)">
+            <summary>
+            Through xdg-open, never by starting the file itself: Process.Start with UseShellExecute would run a file that
+            has the executable bit.
+            </summary>
+        </member>
+        <member name="P:Filee.Platform.Linux.LinuxPlatformServices.DownloadsFolder">
+            <summary>XDG_DOWNLOAD_DIR from user-dirs.dirs (a localized desktop calls it "다운로드"), else ~/Downloads.</summary>
+        </member>
+        <member name="T:Filee.Platform.Linux.LinuxPortableIntegration">
+            <summary>Owned-entry cleanup, separate from the normal integration switches which also replace old copies.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.LinuxPortableIntegration.#ctor(System.String,System.String)">
+            <summary>Owned-entry cleanup, separate from the normal integration switches which also replace old copies.</summary>
+        </member>
+        <member name="P:Filee.Platform.Linux.LinuxPortableIntegration.Current">
+            <summary>Uses the same XDG directories as LinuxPlatformServices.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.LinuxPortableIntegration.HasOwnedEntries(System.String)">
+            <summary>Whether any supported entry targets this exact executable.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.LinuxPortableIntegration.RemoveOwnedEntries(System.String)">
+            <summary>Rechecks ownership before removing each launcher, preserving unrelated Thunar actions and shortcuts.</summary>
+        </member>
+        <member name="T:Filee.Platform.Linux.NativeHeapUsage">
+            <summary>What malloc holds: handed out to native code, and freed but kept for the next allocation.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.NativeHeapUsage.#ctor(System.Int64,System.Int64)">
+            <summary>What malloc holds: handed out to native code, and freed but kept for the next allocation.</summary>
+        </member>
+        <member name="T:Filee.Platform.Linux.NativeHeap.MallInfo2">
+            <summary>struct mallinfo2: only the fields used are named, but all of them take their place.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.NativeHeap.Trim">
+            <summary>Returns malloc's free memory to the system, in every arena. False when there was none, or no glibc.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.NativeHeap.Usage">
+            <summary>What malloc holds right now; null when this C library can't say.</summary>
+        </member>
+        <member name="T:Filee.Platform.Linux.ProcessMemoryUsage">
+            <summary>
+            Resident pages; those no other process maps (what smem calls USS); and those not backed by a file (managed heap,
+            malloc, stacks, code the JIT made).
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.ProcessMemoryUsage.#ctor(System.Int64,System.Int64,System.Int64)">
+            <summary>
+            Resident pages; those no other process maps (what smem calls USS); and those not backed by a file (managed heap,
+            malloc, stacks, code the JIT made).
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.ProcessMemoryUsage.Current">
+            <summary>This process's memory right now; null when the kernel doesn't offer it (before Linux 4.14) or off Linux.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.ProcessMemoryUsage.Parse(System.String)">
+            <summary>Reads the "Rss:   1234 kB" lines of a smaps_rollup file; null when it has no Rss.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.WaylandSupport.IsNativeWaylandRequested(System.Boolean,System.String,System.String)">
+            <summary>
+            Whether the native Wayland backend (Avalonia.Wayland) is opted into: on Linux, with <c>FILEE_USE_WAYLAND=1</c>
+            and a Wayland display to connect to. Otherwise Filee runs through X11 or XWayland.
+            </summary>
+        </member>
+        <member name="P:Filee.Platform.Linux.WaylandSupport.NativeWaylandRequested">
+            <summary><see cref="M:Filee.Platform.Linux.WaylandSupport.IsNativeWaylandRequested(System.Boolean,System.String,System.String)"/> for this process.</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.WaylandSupport.IsSupportedCompositor(System.String,System.String)">
+            <summary>
+            Whether the compositor has a way to put the donut at the cursor: KDE Plasma (the KWin script) or Hyprland (a
+            window rule), told by <c>XDG_CURRENT_DESKTOP</c> or <c>HYPRLAND_INSTANCE_SIGNATURE</c>.
+            </summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.X11WindowSystem.ClientProcessNames">
+            <summary>Process names of the windows the window manager lists (_NET_CLIENT_LIST).</summary>
+        </member>
+        <member name="M:Filee.Platform.Linux.XdgUserDirs.Download(System.String,System.String)">
+            <summary>The XDG_DOWNLOAD_DIR line of a user-dirs.dirs file, with $HOME expanded; null when there is none.</summary>
+        </member>
+    </members>
+</doc>
